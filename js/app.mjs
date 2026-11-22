@@ -9,7 +9,7 @@ const text = (id, value) => { $(id).textContent = value }
 const tg = window.Telegram?.WebApp
 const query = new URLSearchParams(location.search)
 const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-const defaultPlace = {name: 'Київ', country: 'UA', lat: 50.4501, lon: 30.5234, zone: 'Europe/Kyiv'}
+const defaultPlace = {name: 'Москва', country: 'RU', lat: 55.7558, lon: 37.6176, zone: 'Europe/Moscow'}
 const prefix = 'oracle-planetary-v1:'
 function load(key, fallback) {
     try { return JSON.parse(localStorage.getItem(prefix + key)) ?? fallback }
