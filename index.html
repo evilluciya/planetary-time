@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <meta name="description" content="Планетарные часы, Солнце и Луна для вашего города.">
+  <title>Планетарное время</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Cormorant+SC:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+  <script type="module" src="js/app.mjs"></script>
+</head>
+<body>
+  <div class="sky" aria-hidden="true"><canvas id="stars"></canvas></div>
+  <header class="bar">
+    <div class="wordmark"><img src="icon.svg" alt="" width="32" height="32"><span data-text="brand">Акаузальный Оракул</span></div>
+    <div class="bar-actions">
+      <a class="dev-button" data-telegram href="https://t.me/livinggad" target="_blank" rel="noopener" data-label="developerChannel" aria-label="Канал разработчика LIVINGGAD в Telegram"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M22 3 2.7 10.4c-.9.4-.9.9-.1 1.2l4.9 1.6 1.9 5.8c.2.6.1.8.7.8.4 0 .6-.2.9-.5l2.3-2.2 4.8 3.5c.9.5 1.4.3 1.6-.7l3.2-15.4c.3-1.2-.4-1.7-1-1.5ZM8.3 13l11-6.9c.5-.3 1-.1.6.3l-9.1 8.3-.4 4Z"/></svg><span>LIVINGGAD</span></a>
+      <button class="place-button" id="place-button"><span aria-hidden="true">⌖</span> <span id="place-name">Київ</span></button>
+      <button class="icon-button" id="settings-button" aria-label="Настройки" data-label="settings"><span aria-hidden="true">⚙</span></button>
+    </div>
+  </header>
+  <main class="shell">
+    <div class="masthead"><h1 data-text="title">Планетарное время</h1><div class="ornament" aria-hidden="true">◆</div></div>
+    <nav class="tabs" aria-label="Планетарное время" data-label="title">
+      <button type="button" data-view="now" aria-current="page"><span aria-hidden="true">◉</span><span data-text="now">Сейчас</span></button>
+      <button type="button" data-view="table"><span aria-hidden="true">≡</span><span data-text="table">Таблица</span></button>
+      <button type="button" data-view="moon"><span aria-hidden="true">☾</span><span data-text="moon">Луна</span></button>
+      <button type="button" data-view="signals"><span aria-hidden="true">♢</span><span data-text="signals">Сигналы</span></button>
+    </nav>
+
+    <section id="now" class="view">
+      <div class="observatory">
+        <div class="dial-panel frame">
+          <div class="dial-heading"><span id="dial-date"></span><span id="dial-zone"></span></div>
+          <div class="instrument">
+            <svg id="dial" viewBox="0 0 460 460" aria-hidden="true"></svg>
+            <div class="dial-readout">
+              <p id="dial-hour" class="eyebrow"></p>
+              <span id="glow-glyph" aria-hidden="true"></span>
+              <h2 id="current-planet"></h2>
+              <p id="current-range" class="mono"></p>
+            </div>
+          </div>
+          <p id="polar" class="notice" hidden></p>
+          <div id="legend" class="legend"><span><i></i><span data-text="day">День</span></span><span><i></i><span data-text="night">Ночь</span></span><span><i></i><span data-text="now">Сейчас</span></span></div>
+        </div>
+        <aside class="telemetry">
+          <div class="count-panel frame">
+            <p class="eyebrow"><span class="pulse" aria-hidden="true"></span><span data-text="remaining">До смены часа</span></p>
+            <output id="countdown">—</output>
+            <progress id="count-progress" max="1" value="0" aria-label="Прошедшая часть часа" data-label="progress"></progress>
+            <div class="next-line"><span data-text="next">Следующий час</span><strong id="next-hour">—</strong></div>
+          </div>
+          <div class="frame ruler">
+            <div><p class="eyebrow" data-text="ruler">Управитель дня</p><h2 id="ruler-name">—</h2></div>
+            <span id="ruler-glyph" aria-hidden="true"></span>
+          </div>
+          <div class="frame readings">
+            <h2 data-text="solar">Солнце</h2>
+            <dl id="sun-readings"></dl>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="table" class="view frame subview" hidden>
+      <div class="section-heading"><h2 data-text="tableTitle">Часы на дату</h2><button id="today" data-text="today">Сегодня</button></div>
+      <div class="date-nav">
+        <button id="date-previous" data-label="prevDate" aria-label="Предыдущий день">‹</button>
+        <input id="table-date" type="date" data-label="date" aria-label="Дата">
+        <button id="date-next" data-label="nextDate" aria-label="Следующий день">›</button>
+      </div>
+      <div id="hours"></div>
+    </section>
+
+    <section id="moon" class="view frame subview" hidden>
+      <div class="section-heading"><h2 data-text="moon">Луна</h2><span class="mono" id="moon-date"></span></div>
+      <div class="lunar-grid">
+        <div class="lunar-illustration"><canvas id="moon-disc" width="380" height="380" aria-hidden="true"></canvas><h3 id="phase-name"></h3></div>
+        <dl id="moon-readings"></dl>
+      </div>
+      <h3 data-text="phases">Ближайшие фазы</h3>
+      <dl id="moon-phases"></dl>
+    </section>
+
+    <section id="signals" class="view frame subview" hidden>
+      <div class="section-heading"><h2 data-text="signals">Сигналы</h2><button class="primary" id="add-signal" data-text="add">Добавить</button></div>
+      <p class="muted" data-text="signalHint">Звук и вибрация работают, пока Mini App открыт на экране.</p>
+      <div id="signal-list"></div>
+    </section>
+
+    <footer><span id="coordinates" class="mono"></span><span class="developer"><span data-text="developer">Разработчик</span> <a data-telegram href="https://t.me/livinggad" target="_blank" rel="noopener">LIVINGGAD</a></span><a href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames · CC BY 4.0</a></footer>
+  </main>
+
+  <dialog id="place-dialog">
+    <div class="section-heading"><h2 data-text="placeTitle">Выбрать место</h2><button class="icon-button" data-close data-label="close" aria-label="Закрыть">×</button></div>
+    <label><span data-text="search">Город, село или страна</span><input id="place-search" type="search" autocomplete="off"></label>
+    <p id="place-status" class="muted" role="status"></p>
+    <div id="place-results"></div>
+    <button id="locate" class="wide" data-text="locate">Моя геопозиция</button>
+    <details>
+      <summary data-text="manual">Ввести координаты</summary>
+      <form id="coordinates-form">
+        <div class="two-fields">
+          <label><span data-text="latitude">Широта</span><input name="lat" type="number" step="any" min="-90" max="90" required></label>
+          <label><span data-text="longitude">Долгота</span><input name="lon" type="number" step="any" min="-180" max="180" required></label>
+        </div>
+        <label><span data-text="zone">Часовой пояс</span><input name="zone" list="time-zones" required></label><datalist id="time-zones"></datalist>
+        <p id="coordinates-error" class="muted" role="status"></p>
+        <button class="primary wide" data-text="apply">Применить</button>
+      </form>
+    </details>
+  </dialog>
+
+  <dialog id="settings-dialog">
+    <div class="section-heading"><h2 data-text="settings">Настройки</h2><button class="icon-button" data-close data-label="close" aria-label="Закрыть">×</button></div>
+    <label><span data-text="language">Язык</span><select id="language"><option value="ru">Русский</option><option value="en">English</option><option value="de">Deutsch</option><option value="es">Español</option></select></label>
+    <label><span data-text="timeFormat">Формат времени</span><select id="time-format"><option value="24">24 ч / h</option><option value="12">12 ч / h</option></select></label>
+    <label class="check"><input id="seconds" type="checkbox"><span data-text="seconds">Показывать секунды</span></label>
+    <label><span data-text="emblem">Эмблема</span><select id="emblem"><option value="nine" data-text="nine">Девять углов</option><option value="satan" data-text="satan">Сигил Сатаны</option><option value="tob">ToB</option><option value="none" data-text="none">Без эмблемы</option></select></label>
+    <p class="developer settings-developer"><span data-text="developer">Разработчик</span> <a data-telegram href="https://t.me/livinggad" target="_blank" rel="noopener">LIVINGGAD</a></p>
+  </dialog>
+
+  <dialog id="signal-dialog">
+    <div class="section-heading"><h2 data-text="newSignal">Новый сигнал</h2><button class="icon-button" data-close data-label="close" aria-label="Закрыть">×</button></div>
+    <form id="signal-form">
+      <label><span data-text="label">Подпись</span><input name="label" type="text" maxlength="60"></label>
+      <label><span data-text="event">Событие</span><select name="type" id="signal-type">
+        <option value="hour" data-text="planetaryHour">Планетарный час</option><option value="rise" data-text="sunrise">Восход Солнца</option>
+        <option value="noon" data-text="noon">Солнечный полдень</option><option value="set" data-text="sunset">Закат Солнца</option>
+        <option value="moon-rise" data-text="moonrise">Восход Луны</option><option value="moon-set" data-text="moonset">Заход Луны</option>
+        <option value="clock" data-text="clockTime">Время по часам</option><option value="fixed" data-text="selectedHour">Выбранный час</option>
+      </select></label>
+      <div id="hour-fields" class="two-fields">
+        <label><span data-text="planet">Планета</span><select name="planet" id="signal-planet"></select></label>
+        <label><span data-text="period">Период</span><select name="half"><option value="all" data-text="all">Любой</option><option value="day" data-text="day">День</option><option value="night" data-text="night">Ночь</option></select></label>
+      </div>
+      <label id="clock-field" hidden><span data-text="clockTime">Время по часам</span><input name="time" type="time" value="12:00"></label>
+      <div class="two-fields">
+        <label><span data-text="offset">Сдвиг, мин</span><input name="offset" type="number" value="0" min="-180" max="180" step="1" required></label>
+        <label><span data-text="repeat">Повтор</span><select name="repeat"><option value="once" data-text="once">Один раз</option><option value="daily" data-text="daily">Ежедневно</option><option value="every" data-text="every">При каждом событии</option></select></label>
+      </div>
+      <label class="check"><input name="ring" type="checkbox"><span data-text="alarm">Будильник со звуком</span></label>
+      <p id="signal-error" class="muted" role="status"></p>
+      <button class="primary wide" data-text="save">Сохранить</button>
+    </form>
+  </dialog>
+  <div id="alarm-banner" class="alarm-banner frame" role="alert" hidden>
+    <strong id="alarm-title"></strong>
+    <button id="alarm-stop" data-text="stop">Выключить</button>
+    <button id="alarm-snooze" data-text="snooze">Через 5 мин</button>
+  </div>
+</body>
+</html>

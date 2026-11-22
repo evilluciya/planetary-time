@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+     viewBox="0 0 1138 1430" width="1138" height="1430">
+  <title>Sigil of Satanas</title>
+  <desc>Black-line variant for print/PDF.</desc>
+  <g fill="none" stroke="#d95a70" stroke-width="20"
+     stroke-linecap="round" stroke-linejoin="round">
+    <path d="M569 20 L569 1410"/>
+    <path d="M321 752.5 L569 1410"/>
+    <path d="M817 752.5 L569 1410"/>
+    <path d="M321 752.5 L1118 1379.5"/>
+    <path d="M817 752.5 L20 1379.5"/>
+    <path d="M88.5 1238 L20 1379.5 L186 1327.5"/>
+    <path d="M1049.5 1238 L1118 1379.5 L952 1327.5"/>
+  </g>
+</svg>
