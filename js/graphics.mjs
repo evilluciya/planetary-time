@@ -75,7 +75,7 @@ export function makeDial(element, day, emblem) {
             for (const [index, {segment, glyph, night}] of segments.entries()) {
                 const active = index === activeIndex
                 segment.setAttribute('stroke', active ? '#a80c17' : night ? '#303030' : '#ffffff')
-                glyph.setAttribute('fill', active ? '#ffffff' : night ? '#d2d2d2' : '#191416')
+                glyph.setAttribute('fill', active ? '#ffffff' : night ? '#d2d2d2' : '#000000')
             }
             lastIndex = activeIndex
         }

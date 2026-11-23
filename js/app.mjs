@@ -1,6 +1,6 @@
 import {dayAt, localDate, lunarSnapshot, nextSignal, planetaryDay, planets, shiftDate, skyEvents, wallTime} from './clock.mjs'
 import {phases} from './ephemeris.mjs'
-import {animateSky, drawMoon, makeDial} from './graphics.mjs?v=20261123-day-white'
+import {animateSky, drawMoon, makeDial} from './graphics.mjs?v=20261123-day-ink'
 import {nearestPlace, searchPlaces} from './places.mjs'
 import {celestial, messages} from './strings.mjs?v=20261123-moon'
 
