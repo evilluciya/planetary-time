@@ -27,28 +27,28 @@ export function makeDial(element, day, emblem) {
     element.replaceChildren()
     const defs = svg(element, 'defs', {})
     const metal = svg(defs, 'linearGradient', {id: 'metal', x1: '0%', y1: '0%', x2: '90%', y2: '100%'})
-    for (const [offset, color] of [['0%', '#322228'], ['27%', '#91616a'], ['49%', '#332127'], ['76%', '#69303d'], ['100%', '#292225']]) {
+    for (const [offset, color] of [['0%', '#343434'], ['27%', '#b3b3b3'], ['49%', '#484848'], ['76%', '#969696'], ['100%', '#353535']]) {
         svg(metal, 'stop', {offset, 'stop-color': color})
     }
     const glass = svg(defs, 'radialGradient', {id: 'glass'})
-    for (const [offset, color] of [['0%', '#310d19'], ['64%', '#14090e'], ['100%', '#0a0608']]) {
+    for (const [offset, color] of [['0%', '#202020'], ['64%', '#101010'], ['100%', '#080808']]) {
         svg(glass, 'stop', {offset, 'stop-color': color})
     }
     const disc = svg(element, 'g', {})
-    ring(disc, 200, {fill: 'url(#glass)', stroke: '#49242d', 'stroke-width': 4})
+    ring(disc, 200, {fill: 'url(#glass)', stroke: '#4b4b4b', 'stroke-width': 4})
     for (const [radius, width] of [[212, .65], [205, 1.5], [194, .8], [187, .6], [151, .8], [140, 1], [127, .7], [116, .55]]) {
         ring(disc, radius, {stroke: 'url(#metal)', 'stroke-width': width})
     }
     for (let i = 0; i < 120; i++) {
         const major = i % 5 === 0
-        line(disc, major ? 197 : 200, 204, i / 120, {stroke: major ? '#c9a4aa' : '#76505a', 'stroke-width': major ? 1.4 : .65})
+        line(disc, major ? 197 : 200, 204, i / 120, {stroke: major ? '#c1c1c1' : '#686868', 'stroke-width': major ? 1.4 : .65})
     }
-    const ornaments = svg(disc, 'g', {fill: 'none', stroke: '#a23a4e', 'stroke-opacity': .29})
+    const ornaments = svg(disc, 'g', {fill: 'none', stroke: '#828282', 'stroke-opacity': .29})
     for (let i = 0; i < 4; i++) {
-        svg(ornaments, 'path', {d: 'M' + point(218, i / 4) + ' L' + point(213, i / 4 + .006) + ' L' + point(208, i / 4) + ' L' + point(213, i / 4 - .006) + ' Z', fill: '#e4485d', 'stroke-opacity': 1})
+        svg(ornaments, 'path', {d: 'M' + point(218, i / 4) + ' L' + point(213, i / 4 + .006) + ' L' + point(208, i / 4) + ' L' + point(213, i / 4 - .006) + ' Z', fill: '#d01722', 'stroke-opacity': 1})
     }
     if (emblem !== 'none') {
-        const mark = svg(ornaments, 'image', {href: 'data/' + emblem + '.svg', x: 121, y: 121, width: 218, height: 218, opacity: .19})
+        const mark = svg(ornaments, 'image', {class: 'dial-emblem', href: 'data/' + emblem + '.svg', x: 121, y: 121, width: 218, height: 218, opacity: .36})
         mark.setAttribute('preserveAspectRatio', 'xMidYMid meet')
     }
     if (!day) return () => {}
@@ -59,23 +59,23 @@ export function makeDial(element, day, emblem) {
         const end = fraction(hour.end)
         const path = arc(169, start + .0017, end - .0017)
         const segment = svg(disc, 'path', {d: path, fill: 'none', 'stroke-width': 33})
-        line(disc, 143, 152, start, {stroke: hour.night ? '#65555b' : '#a34b59', 'stroke-width': .9})
+        line(disc, 143, 152, start, {stroke: hour.night ? '#555555' : '#a3a3a3', 'stroke-width': .9})
         const [x, y] = polar(169, (start + end) / 2)
         const glyph = svg(disc, 'text', {x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central',
             'font-family': '"Segoe UI Symbol", "DejaVu Sans", serif', 'font-size': 19, 'pointer-events': 'none'}, planets[hour.planet])
         return {segment, glyph, night: hour.night}
     })
     const pointer = svg(disc, 'g', {})
-    svg(pointer, 'path', {d: 'M226 34 L230 44 L234 34 Z', fill: '#fff1ec'})
-    svg(pointer, 'path', {d: 'M230 44 V90', stroke: '#fff1ec', 'stroke-width': 1.65, style: 'filter:drop-shadow(0 0 4px #ff4161)'})
-    svg(pointer, 'circle', {cx: 230, cy: 90, r: 3.5, fill: '#fff1ec'})
+    svg(pointer, 'path', {d: 'M226 34 L230 44 L234 34 Z', fill: '#ed242d'})
+    svg(pointer, 'path', {d: 'M230 44 V90', stroke: '#ed242d', 'stroke-width': 1.65, style: 'filter:drop-shadow(0 0 4px #b50a16)'})
+    svg(pointer, 'circle', {cx: 230, cy: 90, r: 3.5, fill: '#ed242d'})
     let lastIndex
     return (now, activeIndex) => {
         if (lastIndex !== activeIndex) {
             for (const [index, {segment, glyph, night}] of segments.entries()) {
                 const active = index === activeIndex
-                segment.setAttribute('stroke', active ? '#d73b54' : night ? '#30282d' : '#642230')
-                glyph.setAttribute('fill', active ? '#fff3e9' : night ? '#c0aeb3' : '#efd1d4')
+                segment.setAttribute('stroke', active ? '#a80c17' : night ? '#303030' : '#656565')
+                glyph.setAttribute('fill', active ? '#ffffff' : night ? '#d2d2d2' : '#ffffff')
             }
             lastIndex = activeIndex
         }
@@ -104,7 +104,7 @@ export function animateSky(canvas) {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         for (const [x, y, size, pulse] of stars) {
             const brightness = reduced.matches ? .35 : .36 + .25 * Math.sin(ms / 950 + pulse * tau)
-            ctx.fillStyle = (pulse < .2 ? 'rgba(239,89,116,' : 'rgba(244,226,227,') + brightness + ')'
+            ctx.fillStyle = (pulse < .065 ? 'rgba(199,19,29,' : 'rgba(224,224,224,') + brightness + ')'
             const radius = 1 + size * 2.3
             ctx.fillRect(x * canvas.width, y * canvas.height, radius, radius)
         }
@@ -146,19 +146,19 @@ export function drawMoon(canvas, phase) {
             const material = Math.max(0, 170 + texture + relief)
             const color = 10 + .15 * texture + material * (Math.min(1, light * 17) * .40 + light * .60)
             const i = (y * size + x) * 4
-            px.data[i] = color * 1.08
+            px.data[i] = color
             px.data[i + 1] = color
-            px.data[i + 2] = color * .97
+            px.data[i + 2] = color
             px.data[i + 3] = Math.min(255, (1 - d) * r * 255)
         }
     }
     ctx.putImageData(px, 0, 0)
-    ctx.strokeStyle = '#943749'
+    ctx.strokeStyle = '#797979'
     ctx.lineWidth = 1
     ctx.beginPath()
     ctx.arc(size / 2, size / 2, r + 5, 0, tau)
     ctx.stroke()
-    ctx.strokeStyle = '#57313c'
+    ctx.strokeStyle = '#464646'
     ctx.beginPath()
     ctx.arc(size / 2, size / 2, r + 13, 0, tau)
     ctx.stroke()
