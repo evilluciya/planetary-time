@@ -104,8 +104,37 @@ dd { text-align: right; font: .83rem var(--mono); }
 .hour-row:disabled { cursor: default; opacity: .78; }
 .lunar-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 24px; margin-bottom: 22px; }
 .lunar-illustration { text-align: center; }
-#moon-disc { width: min(100%, 260px); height: auto; display: block; margin: auto; }
-#phase-name { margin: -5px 0 9px; }
+.lunar-heading { align-items: baseline; }
+#moon-date { font-size: .9rem; color: #ead2d6; }
+.lunar-viewport { position: relative; display: grid; place-items: center; aspect-ratio: 1; max-width: 380px; margin: 0 auto;
+  overflow: hidden; border: 1px solid #47242c; background: radial-gradient(circle, #27111a 0%, #110a0e 54%, #0b080a 79%); }
+.lunar-viewport::after { position: absolute; z-index: 1; inset: 8%; border: 1px solid #be536633;
+  border-radius: 50%; content: ""; pointer-events: none; }
+.lunar-viewport.is-interactive { touch-action: none; cursor: grab; }
+.lunar-viewport[data-dragging] { cursor: grabbing; }
+.moon-globe-canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
+#moon-disc { display: block; width: min(100%, 82%); height: auto; }
+#phase-name { margin: 9px 0; }
+.moon-tools { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.moon-tools button:nth-child(-n+2) { min-width: 44px; padding-inline: 8px; font-family: var(--mono); }
+#moon-gesture, #moon-fallback { font-size: .93rem; margin-top: 6px; line-height: 1.24; }
+.lunar-inspector { min-width: 0; }
+.moon-calendar-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 7px; align-items: center; }
+.moon-calendar-row button:disabled { opacity: .5; cursor: default; }
+.moon-slider-label { display: block; margin-top: 9px; color: var(--muted); }
+#moon-timeline { display: block; accent-color: var(--red); padding: 0; margin: 0; cursor: pointer; }
+.moon-scale { display: flex; justify-content: space-between; gap: 5px; margin-bottom: 8px; color: var(--muted); font-size: .62rem; }
+.moon-phase-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 8px; }
+.phase-button { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1px 8px; align-items: center; text-align: left; }
+.phase-button .mono { font-size: .67rem; color: var(--muted); }
+.phase-button[aria-pressed="true"] { border-color: var(--light-red); background: #311019; }
+.phase-symbol { grid-row: 1 / 3; font: 1.1rem var(--mono); color: var(--light-red); }
+.moon-credit { margin-top: 9px; color: var(--muted); font: .64rem var(--mono); text-align: end; }
+@media (max-width: 380px) {
+  .moon-calendar-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .moon-calendar-row label { grid-column: 1 / -1; }
+  .phase-button { padding-inline: 7px; gap: 1px 5px; }
+}
 footer { display: flex; justify-content: space-between; gap: 10px; color: #9f8f93; padding: 14px 0 max(16px, env(safe-area-inset-bottom)); font-size: .7rem; }
 footer a { font: .7rem var(--mono); text-underline-offset: 3px; }
 dialog { color: var(--paper); background: #120d0f; border: 1px solid #a53d4e; width: min(450px, calc(100% - 24px)); padding: 18px; max-height: calc(100dvh - 30px); }

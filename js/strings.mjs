@@ -23,3 +23,14 @@ Object.assign(messages.ru, {developer: 'Разработчик', developerChanne
 Object.assign(messages.en, {developer: 'Developer', developerChannel: 'LIVINGGAD developer channel on Telegram'})
 Object.assign(messages.de, {developer: 'Entwickler', developerChannel: 'LIVINGGAD-Entwicklerkanal auf Telegram'})
 Object.assign(messages.es, {developer: 'Desarrollador', developerChannel: 'Canal del desarrollador LIVINGGAD en Telegram'})
+
+const moonInterface = {
+    ru: ['Время Луны', 'Отдалить', 'Приблизить', 'Сбросить вид', 'Вращайте Луну пальцем или мышью. Для масштаба используйте щипок, колесо или кнопки.', '3D недоступно на этом устройстве. Дата и фазы работают.'],
+    en: ['Moon timeline', 'Zoom out', 'Zoom in', 'Reset view', 'Drag to rotate. Pinch, scroll or use the buttons to zoom.', '3D is unavailable on this device. Dates and phases still work.'],
+    de: ['Mondzeit', 'Verkleinern', 'Vergrößern', 'Ansicht zurücksetzen', 'Zum Drehen ziehen. Mit zwei Fingern, Mausrad oder Tasten zoomen.', '3D ist auf diesem Gerät nicht verfügbar. Datum und Mondphasen bleiben verfügbar.'],
+    es: ['Tiempo lunar', 'Alejar', 'Acercar', 'Restablecer vista', 'Arrastra para girar. Usa dos dedos, la rueda o los botones para acercar o alejar.', '3D no está disponible en este dispositivo. La fecha y las fases siguen disponibles.']
+}
+const moonKeys = ['moonTimeline', 'moonZoomOut', 'moonZoomIn', 'moonResetView', 'moonGesture', 'moonFallback']
+for (const [locale, values] of Object.entries(moonInterface)) {
+    moonKeys.forEach((key, index) => { messages[locale][key] = values[index] })
+}

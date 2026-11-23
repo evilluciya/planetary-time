@@ -1,7 +1,8 @@
-import {dayAt, localDate, lunarSnapshot, nextSignal, planetaryDay, planets, shiftDate, skyEvents} from './clock.mjs'
+import {dayAt, localDate, lunarSnapshot, nextSignal, planetaryDay, planets, shiftDate, skyEvents, wallTime} from './clock.mjs'
+import {phases} from './ephemeris.mjs'
 import {animateSky, drawMoon, makeDial} from './graphics.mjs'
 import {nearestPlace, searchPlaces} from './places.mjs'
-import {celestial, messages} from './strings.mjs'
+import {celestial, messages} from './strings.mjs?v=20261123-moon'
 
 const $ = id => document.getElementById(id)
 const all = selector => [...document.querySelectorAll(selector)]
@@ -27,6 +28,15 @@ let view = 'now'
 let makePointer = () => {}
 let currentKey = ''
 let moonKey = ''
+let moonPhasesKey = ''
+let moonSelectedAt = null
+const HOUR_MS = 3_600_000
+const LUNAR_WINDOW = 35 * 24
+let moonAnchor = Math.floor(Date.now() / 60_000) * 60_000
+let globe = null
+let globeRequested = false
+let globeUnavailable = false
+let lunarPhaseForGlobe = null
 let tableKey = ''
 const fmt = new Map()
 const t = key => messages[settings.lang][key]
@@ -89,7 +99,7 @@ function refreshStrings() {
     $('seconds').checked = settings.seconds
     $('emblem').value = settings.emblem
     drawPlace()
-    currentKey = moonKey = tableKey = ''
+    currentKey = moonKey = tableKey = moonPhasesKey = ''
     renderView()
 }
 function drawPlace() {
@@ -192,14 +202,96 @@ function drawTable(now) {
     })
     $('hours').replaceChildren(...sections)
 }
+function globeFallback() {
+    globe = null
+    globeUnavailable = true
+    $('moon-disc').hidden = false
+    $('moon-tools').hidden = true
+    $('moon-gesture').hidden = true
+    $('moon-fallback').hidden = false
+    $('moon-globe').classList.remove('is-interactive')
+    $('moon-globe').removeAttribute('tabindex')
+    $('moon-globe').removeAttribute('aria-label')
+    if (lunarPhaseForGlobe) drawMoon($('moon-disc'), lunarPhaseForGlobe)
+}
+function ensureGlobe() {
+    if (globeRequested) return
+    globeRequested = true
+    import('./lunar-globe.mjs?v=20261123-moon')
+        .then(({createLunarGlobe}) => createLunarGlobe($('moon-globe'), globeFallback))
+        .then(instance => {
+            if (globeUnavailable) return
+            globe = instance
+            $('moon-disc').hidden = true
+            $('moon-tools').hidden = false
+            $('moon-gesture').hidden = false
+            $('moon-globe').classList.add('is-interactive')
+            $('moon-globe').tabIndex = 0
+            $('moon-globe').setAttribute('aria-label', t('moonGesture'))
+            if (lunarPhaseForGlobe) globe.selectPhase(lunarPhaseForGlobe)
+        })
+        .catch(globeFallback)
+}
+function moveMoonTo(ms) {
+    moonSelectedAt = ms
+    if (Math.abs(ms - moonAnchor) > LUNAR_WINDOW * HOUR_MS) {
+        moonAnchor = Math.floor(ms / 60_000) * 60_000
+    }
+    renderView()
+}
+function drawMoonTimeline(ms, date) {
+    const offset = Math.max(-LUNAR_WINDOW, Math.min(LUNAR_WINDOW, Math.round((ms - moonAnchor) / HOUR_MS)))
+    const slider = $('moon-timeline')
+    slider.value = offset
+    const stamp = dateLabel(date) + ' · ' + time(ms)
+    slider.setAttribute('aria-valuetext', stamp)
+    const clock = $('moon-date')
+    clock.dateTime = new Date(ms).toISOString()
+    clock.textContent = stamp
+    $('moon-calendar').value = date
+    $('moon-now').disabled = moonSelectedAt == null
+    const [first, last] = ['moon-start', 'moon-end']
+    text(first, dateLabel(localDate(moonAnchor - LUNAR_WINDOW * HOUR_MS, place.zone)))
+    text(last, dateLabel(localDate(moonAnchor + LUNAR_WINDOW * HOUR_MS, place.zone)))
+}
+function drawPhaseButtons() {
+    const key = moonAnchor + '/' + place.zone
+    if (moonPhasesKey !== key) {
+        moonPhasesKey = key
+        const events = phases(moonAnchor).next.map((ms, index) => ({ms, index: index * 2}))
+            .sort((a, b) => a.ms - b.ms)
+        $('moon-phases').replaceChildren(...events.map(({ms, index}) => {
+            const button = element('button', null, 'phase-button')
+            button.type = 'button'
+            button.dataset.phase = index
+            button.dataset.instant = ms
+            const icon = element('span', ['●', '◐', '○', '◑'][index / 2], 'phase-symbol')
+            icon.setAttribute('aria-hidden', 'true')
+            button.append(icon, element('strong', phaseName(index)), element('span', time(ms, true), 'mono'))
+            button.addEventListener('click', () => moveMoonTo(ms))
+            return button
+        }))
+    }
+    for (const button of all('.phase-button')) {
+        button.setAttribute('aria-pressed', Number(button.dataset.instant) === moonSelectedAt ? 'true' : 'false')
+    }
+}
 function drawLunar(now) {
-    const key = localDate(now, place.zone) + '/' + Math.floor(now / 60_000)
+    ensureGlobe()
+    const ms = moonSelectedAt ?? now
+    const key = Math.floor(ms / 60_000) + '/' + (moonSelectedAt ?? 'live')
     if (moonKey === key) return
     moonKey = key
-    const moon = lunarSnapshot(now, place)
-    text('moon-date', dateLabel(localDate(now, place.zone)))
+    const date = localDate(ms, place.zone)
+    const moon = lunarSnapshot(ms, place)
+    lunarPhaseForGlobe = moon
+    drawMoonTimeline(ms, date)
+    drawPhaseButtons()
     text('phase-name', phaseName(moon.index))
-    drawMoon($('moon-disc'), moon)
+    if (globe) {
+        globe.selectPhase(moon)
+        $('moon-globe').setAttribute('aria-label', t('moonGesture'))
+    } else drawMoon($('moon-disc'), moon)
     const number = new Intl.NumberFormat(settings.lang, {maximumFractionDigits: 1})
     renderPairs('moon-readings', [
         [t('lunarDay'), moon.lunarDay], [t('age'), number.format(moon.age) + ' ' + t('days')],
@@ -208,9 +300,28 @@ function drawLunar(now) {
         [t('moonSign'), signName(moon.moonSign)], [t('sunSign'), signName(moon.sunSign)],
         [t('moonrise'), time(moon.rise)], [t('moonset'), time(moon.set)]
     ])
-    renderPairs('moon-phases', moon.next.map((ms, i) => [phaseName(i * 2), ms]).sort((a, b) => a[1] - b[1])
-        .map(([phase, ms]) => [phase, time(ms, true)]))
 }
+
+let timelineFrame = 0
+$('moon-timeline').addEventListener('input', event => {
+    moonSelectedAt = moonAnchor + Number(event.target.value) * HOUR_MS
+    if (timelineFrame) return
+    timelineFrame = requestAnimationFrame(() => { timelineFrame = 0; renderView() })
+})
+$('moon-calendar').addEventListener('change', event => {
+    const input = event.target
+    const chosen = input.value && input.validity.valid && wallTime(input.value, place.zone, '12:00')
+    if (chosen) moveMoonTo(chosen)
+    else input.value = localDate(moonSelectedAt ?? Date.now(), place.zone)
+})
+$('moon-now').addEventListener('click', () => {
+    moonAnchor = Math.floor(Date.now() / 60_000) * 60_000
+    moonSelectedAt = null
+    renderView()
+})
+$('moon-zoom-in').addEventListener('click', () => globe?.zoom(1.21))
+$('moon-zoom-out').addEventListener('click', () => globe?.zoom(1 / 1.21))
+$('moon-view-reset').addEventListener('click', () => globe?.reset())
 
 function syncBack() {
     const active = all('dialog[open]').length > 0 || view !== 'now'

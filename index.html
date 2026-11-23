@@ -10,9 +10,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Cormorant+SC:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=20261123-moon">
   <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
-  <script type="module" src="js/app.mjs?v=20261123-2"></script>
+  <script type="module" src="js/app.mjs?v=20261123-moon"></script>
 </head>
 <body>
   <div class="sky" aria-hidden="true"><canvas id="stars"></canvas></div>
@@ -79,13 +79,39 @@
     </section>
 
     <section id="moon" class="view frame subview" hidden>
-      <div class="section-heading"><h2 data-text="moon">Луна</h2><span class="mono" id="moon-date"></span></div>
+      <div class="section-heading lunar-heading">
+        <h2 data-text="moon">Луна</h2>
+        <time class="mono" id="moon-date"></time>
+      </div>
       <div class="lunar-grid">
-        <div class="lunar-illustration"><canvas id="moon-disc" width="380" height="380" aria-hidden="true"></canvas><h3 id="phase-name"></h3></div>
-        <dl id="moon-readings"></dl>
+        <div class="lunar-illustration">
+          <div id="moon-globe" class="lunar-viewport">
+            <canvas id="moon-disc" width="340" height="340" aria-hidden="true"></canvas>
+          </div>
+          <h3 id="phase-name"></h3>
+          <div id="moon-tools" class="moon-tools" hidden>
+            <button id="moon-zoom-out" type="button" data-label="moonZoomOut" aria-label="Отдалить">−</button>
+            <button id="moon-zoom-in" type="button" data-label="moonZoomIn" aria-label="Приблизить">+</button>
+            <button id="moon-view-reset" type="button" data-text="moonResetView">Сбросить вид</button>
+          </div>
+          <p id="moon-gesture" class="muted" data-text="moonGesture" hidden>Проведите по Луне, чтобы повернуть. Приближайте двумя пальцами или колесом мыши.</p>
+          <p id="moon-fallback" class="muted" data-text="moonFallback" hidden>3D недоступно на этом устройстве. Дата и фазы работают.</p>
+        </div>
+        <div class="lunar-inspector">
+          <div class="moon-calendar-row">
+            <label for="moon-calendar" data-text="date">Дата</label>
+            <input id="moon-calendar" type="date" min="1900-01-01" max="2199-12-31">
+            <button id="moon-now" type="button" data-text="now">Сейчас</button>
+          </div>
+          <label class="moon-slider-label" for="moon-timeline" data-text="moonTimeline">Время Луны</label>
+          <input id="moon-timeline" type="range" min="-840" max="840" step="1" value="0">
+          <div class="moon-scale mono" aria-hidden="true"><span id="moon-start"></span><span id="moon-end"></span></div>
+          <dl id="moon-readings"></dl>
+        </div>
       </div>
       <h3 data-text="phases">Ближайшие фазы</h3>
-      <dl id="moon-phases"></dl>
+      <div id="moon-phases" class="moon-phase-buttons"></div>
+      <p class="moon-credit"><a href="https://svs.gsfc.nasa.gov/4720/" target="_blank" rel="noopener">NASA Scientific Visualization Studio</a></p>
     </section>
 
     <section id="signals" class="view frame subview" hidden>
