@@ -69,7 +69,7 @@ h1 { font-size: clamp(2.45rem, 6vw, 4.85rem); line-height: .96; letter-spacing: 
 #current-range { font-size: clamp(.64rem, 2vw, .92rem); color: #d0d0d0; white-space: nowrap; }
 .legend { display: flex; justify-content: center; gap: 22px; margin: 4px 0 0; font: .73rem var(--mono); color: var(--muted); }
 .legend > span { display: inline-flex; align-items: center; gap: 6px; }
-.legend i { width: 12px; height: 3px; background: #bd8186; }
+.legend i { width: 12px; height: 3px; background: #ffffff; }
 .legend > span:nth-child(2) i { background: #414141; }
 .legend > span:nth-child(3) i { background: var(--light-red); box-shadow: 0 0 5px #b50a1680; }
 .telemetry { display: grid; grid-template-rows: auto auto 1fr; gap: 12px; }
