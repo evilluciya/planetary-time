@@ -59,7 +59,7 @@ export function makeDial(element, day, emblem) {
         const end = fraction(hour.end)
         const path = arc(169, start + .0017, end - .0017)
         const segment = svg(disc, 'path', {d: path, fill: 'none', 'stroke-width': 33})
-        line(disc, 143, 152, start, {stroke: hour.night ? '#555555' : '#a3a3a3', 'stroke-width': .9})
+        line(disc, 143, 152, start, {stroke: hour.night ? '#555555' : '#aa676e', 'stroke-width': .9})
         const [x, y] = polar(169, (start + end) / 2)
         const glyph = svg(disc, 'text', {x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central',
             'font-family': '"Segoe UI Symbol", "DejaVu Sans", serif', 'font-size': 19, 'pointer-events': 'none'}, planets[hour.planet])
@@ -74,8 +74,8 @@ export function makeDial(element, day, emblem) {
         if (lastIndex !== activeIndex) {
             for (const [index, {segment, glyph, night}] of segments.entries()) {
                 const active = index === activeIndex
-                segment.setAttribute('stroke', active ? '#a80c17' : night ? '#303030' : '#656565')
-                glyph.setAttribute('fill', active ? '#ffffff' : night ? '#d2d2d2' : '#ffffff')
+                segment.setAttribute('stroke', active ? '#a80c17' : night ? '#303030' : '#bd8186')
+                glyph.setAttribute('fill', active ? '#ffffff' : night ? '#d2d2d2' : '#191416')
             }
             lastIndex = activeIndex
         }
